@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(Limit-Order-Book-Simulator VERSION 0.1.0 LANGUAGES C CXX)
 
-add_executable(Limit-Order-Book-Simulator src/BST.cpp)
+add_executable(Limit-Order-Book-Simulator 
+    src/double_linked_list.cpp)
 
 include(CTest)
 enable_testing()
