@@ -14,10 +14,12 @@ private:
     Limit *parentLimit;
 
     friend class Limit;
+    friend class Book;
 public:
     Order(int _idNumber, bool _buyOrSell, int _shares, int _limit);
     ~Order();
-    void print();
+    void cancel();
+    void print() const;
 };
 
 #endif
