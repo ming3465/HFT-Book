@@ -7,7 +7,8 @@ class Limit {
 private:
     int limitPrice;
     int size;
-    int totalVolume;
+    long long totalVolume;
+    int height;
     Limit *parent;
     Limit *leftChild;
     Limit *rightChild;
@@ -17,9 +18,10 @@ private:
     friend class Order;
     friend class Book;
 public:
-    Limit(int _limitPrice, int _size=0, int _totalVolume=0);
+    Limit(int _limitPrice, int _size=0, long long _totalVolume=0);
     Order* getHeadOrder() const;
     void append(Order *_order);
+    void removeOrder(Order *_order);
     void printForward() const;
     void printBackward() const;
     void print() const;

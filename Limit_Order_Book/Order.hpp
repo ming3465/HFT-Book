@@ -9,6 +9,8 @@ private:
     bool buyOrSell;
     int shares;
     int limit;
+    long long entryTime;
+    long long eventTime;
     Order *nextOrder;
     Order *prevOrder;
     Limit *parentLimit;
@@ -17,6 +19,7 @@ private:
     friend class Book;
 public:
     Order(int _idNumber, bool _buyOrSell, int _shares, int _limit);
+    Order(int _idNumber, bool _buyOrSell, int _shares, int _limit, long long _entryTime);
     ~Order();
     void cancel();
     void print() const;

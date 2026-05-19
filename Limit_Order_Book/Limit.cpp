@@ -2,8 +2,9 @@
 #include "Order.hpp"
 #include <iostream>
 
-Limit::Limit(int _limitPrice, int _size, int _totalVolume)
+Limit::Limit(int _limitPrice, int _size, long long _totalVolume)
     : limitPrice(_limitPrice), size(_size), totalVolume(_totalVolume),
+    height(1),
     parent(nullptr), leftChild(nullptr), rightChild(nullptr),
     headOrder(nullptr), tailOrder(nullptr) {}
 
@@ -14,16 +15,34 @@ Order* Limit::getHeadOrder() const
 
 void Limit::append(Order *order)
 {
-        if (headOrder == nullptr) {
-            headOrder = tailOrder = order;
-        } else {
-            tailOrder->nextOrder = order;
-            order->prevOrder = tailOrder;
-            tailOrder = order;
-        }
-        size += 1;
-        totalVolume += order->shares;
-        order->parentLimit = this;
+    if (headOrder == nullptr) {
+        headOrder = tailOrder = order;
+    } else {
+        tailOrder->nextOrder = order;
+        order->prevOrder = tailOrder;
+        tailOrder = order;
+    }
+    size += 1;
+    totalVolume += order->shares;
+    order->parentLimit = this;
+}
+
+void Limit::removeOrder(Order *order)
+{
+    if (order->prevOrder == nullptr) {
+        headOrder = order->nextOrder;
+    } else {
+        order->prevOrder->nextOrder = order->nextOrder;
+    }
+    if (order->nextOrder == nullptr) {
+        tailOrder = order->prevOrder;
+    } else {
+        order->nextOrder->prevOrder = order->prevOrder;
+    }
+    size -= 1;
+    totalVolume -= order->shares;
+    order->prevOrder = order->nextOrder = nullptr;
+    order->parentLimit = nullptr;
 }
 
 void Limit::printForward() const
@@ -48,8 +67,8 @@ void Limit::printBackward() const
 
 void Limit::print() const
 {
-    std::cout << "Limit Price: " << limitPrice 
-    << ", Limit Volume: " << totalVolume 
-    << ", Limit Size: " << size 
+    std::cout << "Limit Price: " << limitPrice
+    << ", Limit Volume: " << totalVolume
+    << ", Limit Size: " << size
     << std::endl;
 }
