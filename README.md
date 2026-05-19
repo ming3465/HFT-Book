@@ -1,12 +1,28 @@
 # HFT-Book
+
+A C++ limit order book with AVL-balanced price levels, FIFO matching, LOBSTER replay, and per-symbol sharded benchmarks.
+
+
+## Project layout
+
+```
+Limit_Order_Book/   Book, Limit, Order (the core)
+Generate_Book/      Synthetic order-flow generator (Poisson-ish)
+IO/                 LOBSTER CSV reader + replay
+src/main.cpp        lob_smoke entrypoint
+bench/bench_main.cpp lob_bench entrypoint
+src/BST.cpp,        standalone learning files, not part of any target
+src/double_linked_list.cpp
+```
+**Verified: 20,000,000 resting orders in ~2.1 GB RSS (~110 B/order), 1.84 M ops/sec single-threaded populate, ~7 M ops/sec aggregate across 4 sharded books.**
 ```cpp
 Order
     int idNumber;
     bool buyOrSell; // true -> buy, false -> sell
     int shares;
     int limit;
-    int entryTime;
-    int eventTime;
+    long long entryTime;
+    long long eventTime;
     Order *nextOrder;
     Order *prevOrder;
     Limit *parentLimit;
@@ -121,14 +137,3 @@ cmake --build out/build/Ninja-UCRT64; if ($?) { out/build/Ninja-UCRT64/lob_smoke
 
 If you touched matching or AVL, also run `lob_bench 1000000 1000000 1` — the random flow exercises millions of crossings, cancels-of-edge-orders, and emptied levels that the deterministic smoke test doesn't cover.
 
-## Project layout
-
-```
-Limit_Order_Book/   Book, Limit, Order (the core)
-Generate_Book/      Synthetic order-flow generator (Poisson-ish)
-IO/                 LOBSTER CSV reader + replay
-src/main.cpp        lob_smoke entrypoint
-bench/bench_main.cpp lob_bench entrypoint
-src/BST.cpp,        standalone learning files, not part of any target
-src/double_linked_list.cpp
-```

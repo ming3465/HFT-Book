@@ -27,6 +27,9 @@ if (WIN32)
     target_link_libraries(lob_bench PRIVATE psapi)
 endif()
 
+add_executable(lob_replay bench/replay_main.cpp)
+target_link_libraries(lob_replay PRIVATE lob_core)
+
 # Keep the original simulator target name as an alias of lob_smoke.
 add_executable(Limit-Order-Book-Simulator src/main.cpp)
 target_link_libraries(Limit-Order-Book-Simulator PRIVATE lob_core)
