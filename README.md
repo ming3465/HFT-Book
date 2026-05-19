@@ -49,13 +49,13 @@ The idea is to have a binary tree of Limit objects sorted by limitPrice, each of
 A variation on this structure is to store the Limits in a sparse array instead of a tree. This will give O(1) always for add operations, but at the cost of making deletion/execution of the last order at the inside limit O(M) as Book.lowestSell/highestBuy have to be updated (for a non-sparse book you will usually get much better than O(M) though). If you store the Limits in a sparse array and linked together in a list then adds become O(log M) again while deletes/executions stay O(1). These are all good implementations; which one is best depends mainly on the sparsity of the book (sparsity being the average distance in cents between limits that have volume, which is generally positively correlated with the instrument price).
 
 With this implementation the operation to be noted is as below : 
-
+```cpp
 Add – O(log M) for the first order at a limit, O(1) for all others
 Cancel – O(1)
 Execute – O(1)
 GetVolumeAtLimit – O(1)
 GetBestBid/Offer – O(1)
-
+```
 where M is the number of price Limits (generally << N the number of orders). AVL tree should be used because the nature of markets is such that orders will be being removed from one side of the tree as they’re being added to the other they need to keep self-balancing the price limit. 
 
 Goal :
