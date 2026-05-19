@@ -1,4 +1,4 @@
-# HFT-Book
+# HFT-LOB
 
 A C++ limit order book with AVL-balanced price levels, FIFO matching, LOBSTER replay, and per-symbol sharded benchmarks.
 
