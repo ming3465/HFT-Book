@@ -220,15 +220,20 @@ void Book::shrinkBookEdge(bool buyOrSell)
 
 void Book::addOrder(int orderId, bool buyOrSell, int shares, int limitPrice)
 {
+    std::vector<Trade> sink;
+    addOrder(orderId, buyOrSell, shares, limitPrice, sink);
+}
+
+void Book::addOrder(int orderId, bool buyOrSell, int shares, int limitPrice,
+                    std::vector<Trade>& outTrades)
+{
     std::lock_guard<std::mutex> g(bookMutex);
 
     int residual = shares;
     if (buyOrSell && lowestSell != nullptr && limitPrice >= lowestSell->limitPrice) {
-        std::vector<Trade> sink;
-        residual = matchUnlocked(orderId, true, shares, limitPrice, sink);
+        residual = matchUnlocked(orderId, true, shares, limitPrice, outTrades);
     } else if (!buyOrSell && highestBuy != nullptr && limitPrice <= highestBuy->limitPrice) {
-        std::vector<Trade> sink;
-        residual = matchUnlocked(orderId, false, shares, limitPrice, sink);
+        residual = matchUnlocked(orderId, false, shares, limitPrice, outTrades);
     }
     if (residual == 0) return;
 
@@ -405,4 +410,33 @@ bool Book::checkBalanced(Limit* n) const
 bool Book::isBalanced() const
 {
     return checkBalanced(buyTree) && checkBalanced(sellTree);
+}
+
+long long Book::volumeAt(int price, bool buyOrSell) const
+{
+    std::lock_guard<std::mutex> g(bookMutex);
+    const auto& map = buyOrSell ? limitBuyMap : limitSellMap;
+    auto it = map.find(price);
+    if (it == map.end()) return 0;
+    return it->second->totalVolume;
+}
+
+std::vector<Book::LevelInfo> Book::levels(bool buyOrSell) const
+{
+    std::lock_guard<std::mutex> g(bookMutex);
+    const auto& map = buyOrSell ? limitBuyMap : limitSellMap;
+    std::vector<LevelInfo> out;
+    out.reserve(map.size());
+    for (const auto& [price, L] : map) {
+        out.push_back(LevelInfo{price, L->totalVolume, L->size});
+    }
+    // Buys descending (best first), sells ascending (best first).
+    if (buyOrSell) {
+        std::sort(out.begin(), out.end(),
+                  [](const LevelInfo& a, const LevelInfo& b){ return a.price > b.price; });
+    } else {
+        std::sort(out.begin(), out.end(),
+                  [](const LevelInfo& a, const LevelInfo& b){ return a.price < b.price; });
+    }
+    return out;
 }

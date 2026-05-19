@@ -11,11 +11,11 @@ add_library(lob_core
     Limit_Order_Book/Limit.cpp
     Limit_Order_Book/Order.cpp
     Generate_Book/GenerateBook.cpp
-    IO/LobsterReader.cpp)
+    Fetch_Lobster_data/LobsterReader.cpp)
 target_include_directories(lob_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Limit_Order_Book
     ${CMAKE_CURRENT_SOURCE_DIR}/Generate_Book
-    ${CMAKE_CURRENT_SOURCE_DIR}/IO)
+    ${CMAKE_CURRENT_SOURCE_DIR}/Fetch_Lobster_data)
 target_link_libraries(lob_core PUBLIC Threads::Threads)
 
 add_executable(lob_smoke src/main.cpp)
@@ -29,6 +29,9 @@ endif()
 
 add_executable(lob_replay bench/replay_main.cpp)
 target_link_libraries(lob_replay PRIVATE lob_core)
+
+add_executable(lob_sim bench/sim_main.cpp)
+target_link_libraries(lob_sim PRIVATE lob_core)
 
 # Keep the original simulator target name as an alias of lob_smoke.
 add_executable(Limit-Order-Book-Simulator src/main.cpp)

@@ -96,22 +96,21 @@ ctest --test-dir out/build/Ninja-UCRT64 --output-on-failure
 
 ### 2. Capacity (the 20M-order claim)
 
-```powershell
-out/build/Ninja-UCRT64/lob_bench.exe 20000000 0 1
+`lob_bench` takes three positional arguments:
+
+```
+lob_bench.exe <populate_count> <stream_count> <threads>
 ```
 
-Look for:
-- `resident orders: 20000000` — every order made it in
-- `RSS post-pop: ~2100 MB` — within ~10% is fine
-- `~110 B/order` — the headline number
+| Argument | Meaning |
+|---|---|
+| `<populate_count>` | Number of resting orders to seed before any churn |
+| `<stream_count>` | Number of mixed messages (40 % cancel / 10 % execute / 50 % add) streamed on top — set to `0` for a pure capacity test |
+| `<threads>` | Number of independent `Book` instances run in parallel (per-symbol sharding) |
 
-**Requires ~3 GB of free RAM.** If the machine starts paging, populate time blows up from ~11 s to minutes.
+Capacity run — 20 M resting orders, no churn, single thread:
 
-Fast sanity check (~0.5 s, ~110 MB):
 
-```powershell
-out/build/Ninja-UCRT64/lob_bench.exe 1000000 0 1
-```
 
 ### 3. Throughput + sharding
 
@@ -119,21 +118,25 @@ Single-threaded mixed flow (add/cancel/execute):
 
 ```powershell
 out/build/Ninja-UCRT64/lob_bench.exe 1000000 1000000 1
+#                                    <pop>   <str>   <thr>
 ```
 
 Multi-threaded sharded (one independent `Book` per thread):
 
 ```powershell
 out/build/Ninja-UCRT64/lob_bench.exe 1000000 1000000 4
+#                                    <pop>   <str>   <thr>
 ```
 
-Per-thread `M/s` should stay close to the single-threaded number (within ~20%); aggregate should scale roughly linearly with thread count until memory bandwidth saturates.
 
-### 4. After any edit
 
-```powershell
-cmake --build out/build/Ninja-UCRT64; if ($?) { out/build/Ninja-UCRT64/lob_smoke.exe }
+## Interactive simulator
+
+For a hands-on demo with **no data file at all**:
+
+```bash
+out/build/Ninja-UCRT64/lob_sim.exe
 ```
 
-If you touched matching or AVL, also run `lob_bench 1000000 1000000 1` — the random flow exercises millions of crossings, cancels-of-edge-orders, and emptied levels that the deterministic smoke test doesn't cover.
+The simulator manages **one [Book](Limit_Order_Book/Book.hpp) per stock symbol** — say `MSFT` once and that book is created; say `MSFT` again and your order goes to the same book. Cross-symbol orders don't interact (MSFT buys never match AAPL sells), which is the per-symbol sharding pattern used throughout the project.
 

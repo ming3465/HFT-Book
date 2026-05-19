@@ -50,6 +50,8 @@ public:
     Book();
     ~Book();
     void addOrder(int orderId, bool buyOrSell, int shares, int limitPrice);
+    void addOrder(int orderId, bool buyOrSell, int shares, int limitPrice,
+                  std::vector<Trade>& outTrades);
     void addLimit(int limitPrice, bool buyOrSell);
     Limit* insert(Limit* root, Limit* limit, Limit* parent=nullptr);
     void updateBookEdge(Limit* newLimit, bool buyOrSell);
@@ -67,6 +69,10 @@ public:
     bool  hasAsk() const;
     size_t orderCount() const;
     bool  isBalanced() const;
+    long long volumeAt(int price, bool buyOrSell) const;
+
+    struct LevelInfo { int price; long long volume; int size; };
+    std::vector<LevelInfo> levels(bool buyOrSell) const;
 };
 
 #endif
