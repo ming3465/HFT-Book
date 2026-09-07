@@ -137,6 +137,10 @@ For a hands-on demo with **no data file at all**:
 ```bash
 out/build/Ninja-UCRT64/lob_sim.exe
 ```
+## References
 
+[How to Build a Fast Limit Order Book - wkselph](https://web.archive.org/web/20110219163448/http://howtohft.wordpress.com/2011/02/15/how-to-build-a-fast-limit-order-book/)
+
+[Millions of Orders per Second Matching Engine Testing - Alex Zus](https://habr.com/en/articles/581170/)
 The simulator manages **one [Book](Limit_Order_Book/Book.hpp) per stock symbol** — say `MSFT` once and that book is created; say `MSFT` again and your order goes to the same book. Cross-symbol orders don't interact (MSFT buys never match AAPL sells), which is the per-symbol sharding pattern used throughout the project.
 
